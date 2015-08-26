@@ -92,13 +92,14 @@ public class ServicoRest {
 	@GET
 	@Path("/getTimeLine")
 	@Produces("text/json;charset=UTF-8")
-	public String getTimeLine(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, 
+	public String getTimeLine(
+			@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, 
 			@QueryParam("page") Long page, @QueryParam("start") Long start, @QueryParam("limit") Long limits){
 		init();
 		
 		System.out.println("latitude: "+latitude+" longitude: "+ longitude+" page: "+page);
 		
-		if( page >1) return "[]";
+		if( page != null && page >1) return "[]";
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
@@ -109,7 +110,7 @@ public class ServicoRest {
 	    String url = scheme + "://" + serverName + ":" + serverPort + context;
 	    String path = "/imagens";
 	    
-		return this.educacaoFacade.getTimeLine(url+path);
+		return this.educacaoFacade.getTimeLine(url+path, latitude, longitude);
 	}
 	
 	@GET
@@ -181,12 +182,12 @@ public class ServicoRest {
 	@GET
 	@Path("/getEscolas")
 	@Produces("text/json;charset=UTF-8")
-	public String getEscolas(){
+	public String getEscolas(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude){
 		init();
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		return this.educacaoFacade.getEscolas();
+		return this.educacaoFacade.getEscolas(latitude, longitude);
 	}
 
 	public void init() {

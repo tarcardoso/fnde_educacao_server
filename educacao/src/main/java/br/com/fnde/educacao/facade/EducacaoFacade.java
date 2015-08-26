@@ -74,10 +74,15 @@ public class EducacaoFacade {
 	}	
 	
 	@Transactional
-	public String getEscolas(){
+	public String getEscolas(String latitude, String longitude){
 		JsonArray jarr = new JsonArray();
 		
-		List<Escola> lst 	= escolaDAO.getTodos();
+		List<Escola> lst = null;
+		if( latitude != null && longitude != null ){
+			lst = escolaDAO.getByLatitudeLongitude(Double.parseDouble(latitude), Double.parseDouble(longitude) );
+		}else{
+			lst = escolaDAO.getTodos();
+		}
 		
 		for (Escola tl : lst) {
 			JsonObject jo = new JsonObject();
@@ -191,10 +196,16 @@ public class EducacaoFacade {
 	}
 	
 	@Transactional
-	public String getTimeLine(String pathImagem){
+	public String getTimeLine(String pathImagem, String sLatitude, String sLongitude){
 		JsonArray jarr = new JsonArray();
 		
-		List<TimeLine> lst 	= timeLineDAO.getTodos();
+		List<TimeLine> lst 	=null; 
+		if( sLatitude == null || sLongitude == null ){
+			lst = timeLineDAO.getTodos();
+		}else{
+			//TODO A SER SIMPLEMENTADO QUANDO ESTIVER BUSCANDO LAT E LONGITUDE
+			lst = timeLineDAO.getByLatitudeLongitude( Double.parseDouble(sLongitude), Double.parseDouble(sLatitude) );
+		}
 		montaJsonTimeLine(lst, jarr, pathImagem);
 		
 		return jarr.toString();

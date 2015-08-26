@@ -46,6 +46,7 @@
 				<value>br.com.fnde.educacao.domain.TimeLine</value>
 				<value>br.com.fnde.educacao.domain.Escola</value>
 				<value>br.com.fnde.educacao.domain.ImproprioTimeLine</value>
+				<value>br.com.fnde.educacao.domain.CurtirTimeLine</value>
 			</array>
 		</property>
 	</bean>	
