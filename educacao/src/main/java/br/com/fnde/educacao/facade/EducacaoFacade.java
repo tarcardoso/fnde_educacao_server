@@ -7,17 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import br.com.fnde.educacao.dao.CurtirTimeLineDAO;
 import br.com.fnde.educacao.dao.EscolaDAO;
+import br.com.fnde.educacao.dao.ImproprioTimeLineDAO;
 import br.com.fnde.educacao.dao.TimeLineDAO;
+import br.com.fnde.educacao.domain.CurtirTimeLine;
 import br.com.fnde.educacao.domain.Escola;
+import br.com.fnde.educacao.domain.ImproprioTimeLine;
 import br.com.fnde.educacao.domain.TimeLine;
-import br.com.mec.fies.presenter.Publicacao;
+import br.com.fnde.educacao.presenter.Improprio;
+import br.com.fnde.educacao.presenter.Publicacao;
 
 
 @Component("educacaoFacade")
@@ -29,6 +33,11 @@ public class EducacaoFacade {
 	@Autowired
 	private TimeLineDAO timeLineDAO;
 	
+	@Autowired
+	private ImproprioTimeLineDAO improprioTimeLineDAO;
+	
+	@Autowired
+	private CurtirTimeLineDAO curtirTimeLineDAO;
 	
 	public EducacaoFacade() {
 		super();
@@ -85,8 +94,27 @@ public class EducacaoFacade {
 	}
 	
 	@Transactional
-	public int curti(String idTimeLine){
+	public int curti(String idTimeLine, String idUsuario){
+		CurtirTimeLine curtir = new CurtirTimeLine();
+		
+		curtir.setIdTimeLine( Long.parseLong( idTimeLine) );
+		curtir.setIdUsuario( Long.parseLong( idUsuario) );
+		
+		curtirTimeLineDAO.insert(curtir);
+		
 		return timeLineDAO.updateCurti(idTimeLine);
+	}
+	
+	@Transactional
+	public long salvaImproprio(Improprio improprio) {
+		ImproprioTimeLine itl = new ImproprioTimeLine();
+		itl.setIdImproprio( Long.parseLong(improprio.getIdImproprio()) );
+		itl.setIdTimeLine( Long.parseLong(improprio.getIdTimeLine()) );
+		itl.setIdUsuario( Long.parseLong(improprio.getIdUsuario() ) );
+		
+		improprioTimeLineDAO.insert(itl);
+		
+		return itl.getIdImproprioTimeLine();
 	}
 	
 	@Transactional
@@ -127,6 +155,7 @@ public class EducacaoFacade {
 			joFB.addProperty("foto", tl.getFotoFaceBook());
 			jo.add("facebook", joFB);
 			jo.addProperty("tipo", getTipoPost( tl.getTpTimeLine() ));
+			jo.addProperty("tipo_sl", getTipoPostLg( tl.getTpTimeLine() ));
 			jo.addProperty("tempo", calculaTempo( tl.getDtTimeLine() ));
 			
 			Escola escola = (Escola)escolaDAO.getById( tl.getIdEscola() );
@@ -173,10 +202,27 @@ public class EducacaoFacade {
 	
 	private String calculaTempo(Date dtTileLine) {
 		//TODO FAZER O CALCULO DO TEMPO DECORRIDO
-		//return dtTileLine.toString();
 		return "2 minutos atrás ("+dtTileLine.toString()+")";
 	}
 
+	private String getTipoPostLg(Integer tpTimeLine) {
+		String ret = "D";
+		switch (tpTimeLine) {
+			case 1:
+				ret = "D";
+				break;
+			case 2:
+				ret = "P";
+				break;
+			case 3:
+				ret = "A";
+				break;
+			default:
+				break;
+		}
+		return ret;
+	}
+	
 	private String getTipoPost(Integer tpTimeLine) {
 		String ret = "Denuncia";
 		switch (tpTimeLine) {
@@ -216,4 +262,6 @@ public class EducacaoFacade {
 		
 		return jo.toString();
 	}
+
+	
 }

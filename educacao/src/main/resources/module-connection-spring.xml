@@ -45,14 +45,7 @@
 			<array>
 				<value>br.com.fnde.educacao.domain.TimeLine</value>
 				<value>br.com.fnde.educacao.domain.Escola</value>
-				<value>br.com.fnde.educacao.domain.Aditamento</value>
-				<value>br.com.fnde.educacao.domain.DadoCadastral</value>
-				<value>br.com.fnde.educacao.domain.Fiador</value>
-				<value>br.com.fnde.educacao.domain.HistoricoAditamento</value>
-				<value>br.com.fnde.educacao.domain.Ies</value>
-				<value>br.com.fnde.educacao.domain.TermoFinanciamento</value>
-				<value>br.com.fnde.educacao.domain.Usuario</value>
-				<value>br.com.fnde.educacao.domain.ValidaAditamento</value>
+				<value>br.com.fnde.educacao.domain.ImproprioTimeLine</value>
 			</array>
 		</property>
 	</bean>	

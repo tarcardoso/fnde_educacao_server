@@ -1,10 +1,6 @@
 package br.com.fnde.educacao.rest;
 
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,22 +14,11 @@ import javax.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import br.com.fnde.educacao.facade.EducacaoFacade;
+import br.com.fnde.educacao.presenter.Improprio;
+import br.com.fnde.educacao.presenter.Publicacao;
 import br.com.mec.fies.core.server.SpringManager;
-import br.com.mec.fies.presenter.ConfirmaAbertura;
-import br.com.mec.fies.presenter.Entrada;
-import br.com.mec.fies.presenter.Publicacao;
-import br.com.mec.fies.presenter.Retorno;
-import br.com.mec.fies.presenter.RootJson;
-import br.com.mec.fies.presenter.Sms;
-import br.com.mec.fies.presenter.ValidaAditamento;
-import br.com.mec.fies.util.EngineJson;
 
 @Path("/servicos")
 /**
@@ -61,6 +46,48 @@ public class ServicoRest {
 	
 	@Context
 	HttpServletRequest request;
+	
+	@POST
+	@Path("/improprio")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String salvaImproprio(@RequestBody Improprio improprio){
+		init();
+		System.out.println( improprio );
+		
+		this.educacaoFacade = getEducacaoFacade();
+		
+		long idImproprio = this.educacaoFacade.salvaImproprio( improprio );
+		System.out.println("idImproprio: "+idImproprio);
+	    
+		return "{}";
+	}
+	
+	@GET
+	@Path("/improprio")
+	@Produces("text/json;charset=UTF-8")
+	public String getImproprio(){
+		String json = "["+
+				"    { "+
+				"    	\"id\": 1, "+
+				"        \"nome\": \"Span ou fraude\", "+
+				"        \"descricao\": \"Usado para conteúdo exclusivamente comerciais ou qualquer ato de má fé com intuito de ludibriar alguém.\" "+
+				"    }, "+
+				"    { "+
+				"    	\"idEscola\": 2, "+
+				"        \"nome\": \"A foto coloca pessoas em risco\", "+
+				"        \"descricao\": \"Usado para denunciar imagens que retratam auto flagelação, perseguição online (cyberbullying) ou uso de drogas.\" "+
+				"    }, "+
+				"    { "+
+				"    	\"idEscola\": 3, "+
+				"        \"nome\": \"A foto não deveria estar aqui\", "+
+				"        \"descricao\": \"Usado em caso de nudez, pornografia, violação de direitos autorais ou discursos de ódio.\" "+
+				"    } "+
+				"] ";
+		
+		return json;
+	}
+	
 	
 	@GET
 	@Path("/getTimeLine")
@@ -128,10 +155,11 @@ public class ServicoRest {
 	public String postCurti(){
 		init();
 		String idTimeLine = request.getParameter("idTimeLine");
+		String idUsuario = request.getParameter("idUsuario");
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		int curti = this.educacaoFacade.curti( idTimeLine );
+		int curti = this.educacaoFacade.curti( idTimeLine, idUsuario );
 		
 		return "{\"qtd\": "+ curti+" }";
 	}
@@ -161,15 +189,12 @@ public class ServicoRest {
 		return this.educacaoFacade.getEscolas();
 	}
 
-
 	public void init() {
-		 
 		SpringManager.getInstancia().setServletContext(request.getSession().getServletContext());
 	}
 
 	public EducacaoFacade getEducacaoFacade() {
 		return SpringManager.getInstancia().getBean("educacaoFacade");
 	}
-	
 
 }

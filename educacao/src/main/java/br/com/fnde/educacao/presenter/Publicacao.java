@@ -1,4 +1,4 @@
-package br.com.mec.fies.presenter;
+package br.com.fnde.educacao.presenter;
 
 import java.io.Serializable;
 
@@ -52,7 +52,6 @@ public class Publicacao implements Serializable {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
-	
 		
 	public static long getSerialversionuid() {
 		return serialVersionUID;

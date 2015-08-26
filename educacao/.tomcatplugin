@@ -6,7 +6,7 @@
     <redirectLogger>false</redirectLogger>
     <updateXml>true</updateXml>
     <warLocation></warLocation>
-    <extraInfo>%3CResource+name%3D%22jdbc%2FeducacaoDS%22+auth%3D%22Container%22+type%3D%22javax.sql.DataSource%22%0A%09++++++maxActive%3D%22100%22+maxIdle%3D%2230%22+maxWait%3D%22100%22%0A++++++++++++++username%3D%22postgres%22+password%3D%22root%22+driverClassName%3D%22org.postgresql.Driver%22%0A++++++++++++++url%3D%22jdbc%3Apostgresql%3A%2F%2F192.168.5.14%3A5432%2Ffnde%22%2F%3E</extraInfo>
+    <extraInfo>%3CResource+name%3D%22jdbc%2FeducacaoDS%22+auth%3D%22Container%22+type%3D%22javax.sql.DataSource%22%0A%09++++++maxActive%3D%22100%22+maxIdle%3D%2233%22+maxWait%3D%22100%22%0A++++++++++++++username%3D%22postgres%22+password%3D%22root%22+driverClassName%3D%22org.postgresql.Driver%22%0A++++++++++++++url%3D%22jdbc%3Apostgresql%3A%2F%2F192.168.5.14%3A5432%2Ffnde%22%2F%3E</extraInfo>
     <webPath>fndeEducacao</webPath>
     <webClassPathEntries>
         <webClassPathEntry>/educacao/target/classes</webClassPathEntry>
