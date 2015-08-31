@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Generated;
@@ -28,6 +29,16 @@ public class Escola implements Domain {
 	@NotNull
 	@Column(name="txImagem", nullable=false, length=100)
 	private String txImagem;
+
+	@Transient
+	private Long distancia;
+
+	public Long getDistancia() {
+		return distancia;
+	}
+	public void setDistancia(Long distancia) {
+		this.distancia = distancia;
+	}
 
 	public Long getIdEscola() {
 		return idEscola;

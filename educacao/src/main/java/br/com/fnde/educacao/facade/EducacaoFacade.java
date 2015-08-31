@@ -20,6 +20,7 @@ import br.com.fnde.educacao.domain.CurtirTimeLine;
 import br.com.fnde.educacao.domain.Escola;
 import br.com.fnde.educacao.domain.ImproprioTimeLine;
 import br.com.fnde.educacao.domain.TimeLine;
+import br.com.fnde.educacao.presenter.EscolaDistancia;
 import br.com.fnde.educacao.presenter.Improprio;
 import br.com.fnde.educacao.presenter.Publicacao;
 
@@ -77,23 +78,23 @@ public class EducacaoFacade {
 	public String getEscolas(String latitude, String longitude){
 		JsonArray jarr = new JsonArray();
 		
-		List<Escola> lst = null;
+		List<EscolaDistancia> lst = null;
 		if( latitude != null && longitude != null ){
 			lst = escolaDAO.getByLatitudeLongitude(Double.parseDouble(latitude), Double.parseDouble(longitude) );
-		}else{
-			lst = escolaDAO.getTodos();
 		}
-		
-		for (Escola tl : lst) {
-			JsonObject jo = new JsonObject();
-			jo.addProperty("idEscola", tl.getIdEscola() );
-			
-			jo.addProperty("nome",  tl.getNoEscola() );
-			jo.addProperty("endereco",  tl.getTxEndereco() );
-			jo.addProperty("imagem",  tl.getTxImagem() );
-			
-			System.out.println( jo );
-			jarr.add( jo );
+		if( lst != null ){
+			//TODO fazer a logica para buscar dos favoritos
+			for (EscolaDistancia tl : lst) {
+				JsonObject jo = new JsonObject();
+				jo.addProperty("idEscola", tl.getIdescola() );
+				
+				jo.addProperty("nome",  tl.getNoescola() );
+				jo.addProperty("distancia",  tl.getDistancia() );
+				jo.addProperty("imagem",  tl.getTximagem() );
+				
+				System.out.println( jo );
+				jarr.add( jo );
+			}
 		}
 		return jarr.toString();
 	}
@@ -196,7 +197,7 @@ public class EducacaoFacade {
 	}
 	
 	@Transactional
-	public String getTimeLine(String pathImagem, String sLatitude, String sLongitude){
+	public String getTimeLine(String pathImagem, String sLatitude, String sLongitude, Long page, Long start, Long limits){
 		JsonArray jarr = new JsonArray();
 		
 		List<TimeLine> lst 	=null; 

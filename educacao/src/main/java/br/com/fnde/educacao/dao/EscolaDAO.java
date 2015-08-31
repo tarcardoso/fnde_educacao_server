@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.springframework.stereotype.Repository;
 
 import br.com.fnde.educacao.domain.Escola;
-import br.com.fnde.educacao.domain.TimeLine;
+import br.com.fnde.educacao.presenter.EscolaDistancia;
 import br.com.mec.fies.core.db.HibernateDAOImpl;
 
 @Repository
@@ -18,22 +21,34 @@ public class EscolaDAO extends HibernateDAOImpl<Escola> {
 		return Escola.class;
 	}
 	
-	public List<Escola> getByLatitudeLongitude(double latitude, double longitude) {
+	public List<EscolaDistancia> getByLatitudeLongitude(double latitude, double longitude) {
 		
 		SQLQuery query = getSession().createSQLQuery(
-				" SELECT *, ( (3959 * 1.609 * 1000) * acos( cos( radians( :latitude) ) * cos(  "
+				" SELECT idescola, noescola, tximagem, "
+						+"( (3959 * 1.609 * 1000) * acos( cos( radians( :latitude) ) * cos(  "
 						+" radians(numlatitude ) ) * cos( "
 						+" radians( numlongitude ) - radians( :longitude) ) + sin( radians( :latitude) ) * sin(  " 
 						+" radians( numlatitude ) ) ) ) AS "
-						+" distance "
-						+" FROM escola order by distance limit 10"
+						+" distancia "
+						+" FROM escola order by distancia limit 10"
 						);
+		
+			query.addScalar("idescola", new LongType())
+            .addScalar("noescola", new StringType())
+            .addScalar("tximagem", new StringType())
+            .addScalar("distancia", new LongType());
+            
 			query.setParameter("latitude", latitude); //-15.844539);
 			query.setParameter("longitude", longitude); //-47.880803);
+
+			query.setResultTransformer( Transformers.aliasToBean(EscolaDistancia.class) );
 			
-			query.addEntity(Escola.class);
+			//query.addEntity(Escola.class);
 			
-			return query.list();
+			List<EscolaDistancia> list = query.list();
+			
+			
+			return list;
 			
 //		Query query = getSession().createSQLQuery(
 //				" SELECT idEscola, ( (3959 * 1.609 * 1000) * acos( cos( radians( :latitude ) ) * cos( "

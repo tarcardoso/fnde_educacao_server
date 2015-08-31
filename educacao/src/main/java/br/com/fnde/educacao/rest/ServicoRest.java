@@ -90,7 +90,7 @@ public class ServicoRest {
 	
 	
 	@GET
-	@Path("/getTimeLine")
+	@Path("/timeline")
 	@Produces("text/json;charset=UTF-8")
 	public String getTimeLine(
 			@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, 
@@ -110,7 +110,7 @@ public class ServicoRest {
 	    String url = scheme + "://" + serverName + ":" + serverPort + context;
 	    String path = "/imagens";
 	    
-		return this.educacaoFacade.getTimeLine(url+path, latitude, longitude);
+		return this.educacaoFacade.getTimeLine(url+path, latitude, longitude, page, start, limits);
 	}
 	
 	@GET
@@ -180,6 +180,22 @@ public class ServicoRest {
 	}
 	
 	@GET
+	@Path("/escola/proxima")
+	@Produces("text/json;charset=UTF-8")
+	public String getEscolasProximas(
+			@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude,
+			@QueryParam("page") Long page, @QueryParam("start") Long start, @QueryParam("limit") Long limits){
+		
+		System.out.println("latitude: "+latitude+" longitude: "+ longitude+" page: "+page);
+		
+		init();
+		
+		this.educacaoFacade = getEducacaoFacade();
+		
+		return this.educacaoFacade.getEscolas(latitude, longitude);
+	}
+	
+	@GET
 	@Path("/getEscolas")
 	@Produces("text/json;charset=UTF-8")
 	public String getEscolas(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude){
@@ -187,7 +203,7 @@ public class ServicoRest {
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		return this.educacaoFacade.getEscolas(latitude, longitude);
+		return "{}";//this.educacaoFacade.getEscolas(latitude, longitude);
 	}
 
 	public void init() {
