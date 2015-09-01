@@ -21,7 +21,7 @@ public class EscolaDAO extends HibernateDAOImpl<Escola> {
 		return Escola.class;
 	}
 	
-	public List<EscolaDistancia> getByLatitudeLongitude(double latitude, double longitude) {
+	public List<EscolaDistancia> getByLatitudeLongitude(Long page, Long start, Long limits, double latitude, double longitude) {
 		
 		SQLQuery query = getSession().createSQLQuery(
 				" SELECT idescola, noescola, tximagem, "
@@ -30,7 +30,7 @@ public class EscolaDAO extends HibernateDAOImpl<Escola> {
 						+" radians( numlongitude ) - radians( :longitude) ) + sin( radians( :latitude) ) * sin(  " 
 						+" radians( numlatitude ) ) ) ) AS "
 						+" distancia "
-						+" FROM escola order by distancia limit 10"
+						+" FROM escola order by distancia OFFSET "+start+" limit "+limits
 						);
 		
 			query.addScalar("idescola", new LongType())

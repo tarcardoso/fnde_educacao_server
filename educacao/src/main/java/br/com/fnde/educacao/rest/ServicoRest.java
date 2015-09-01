@@ -192,7 +192,7 @@ public class ServicoRest {
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		return this.educacaoFacade.getEscolas(latitude, longitude);
+		return this.educacaoFacade.getEscolas(page, start, limits, latitude, longitude);
 	}
 	
 	@GET

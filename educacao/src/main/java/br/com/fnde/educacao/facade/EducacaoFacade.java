@@ -75,12 +75,12 @@ public class EducacaoFacade {
 	}	
 	
 	@Transactional
-	public String getEscolas(String latitude, String longitude){
+	public String getEscolas(Long page, Long start, Long limits, String latitude, String longitude){
 		JsonArray jarr = new JsonArray();
 		
 		List<EscolaDistancia> lst = null;
 		if( latitude != null && longitude != null ){
-			lst = escolaDAO.getByLatitudeLongitude(Double.parseDouble(latitude), Double.parseDouble(longitude) );
+			lst = escolaDAO.getByLatitudeLongitude(page, start, limits, Double.parseDouble(latitude), Double.parseDouble(longitude) );
 		}
 		if( lst != null ){
 			//TODO fazer a logica para buscar dos favoritos
