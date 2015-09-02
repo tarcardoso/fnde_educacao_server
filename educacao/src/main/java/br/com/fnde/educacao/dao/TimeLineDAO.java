@@ -1,10 +1,15 @@
 package br.com.fnde.educacao.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
+import org.json.simple.JSONArray;
 import org.springframework.stereotype.Repository;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import br.com.fnde.educacao.domain.TimeLine;
 import br.com.mec.fies.core.db.HibernateDAOImpl;
@@ -47,6 +52,30 @@ public class TimeLineDAO extends HibernateDAOImpl<TimeLine> {
 //		return queryEscola.list();
 	}
 	
+	public List<TimeLine> getFavoritos( JsonElement json ){
+		
+		System.out.println( json );
+		JsonArray arr = json.getAsJsonArray();
+		
+		String idEscola = "";
+		for (JsonElement je : arr) {
+			idEscola += je.getAsString()+",";
+		}
+		if( idEscola.length() > 0 ){
+			idEscola = idEscola.substring(0, idEscola.length() - 1 );
+		}
+		
+		if( idEscola.isEmpty() ){
+			return new ArrayList<TimeLine>();
+		}
+		Query query = getSession().createQuery("from TimeLine tl where tl.idEscola in ("+ idEscola +") ");
+
+		List<TimeLine> list = (List<TimeLine>) query.list();
+		
+		return list;
+		
+		//return recuperarTodos();
+	}
 	public List<TimeLine> getTodos() {
 		return recuperarTodos();
 	}

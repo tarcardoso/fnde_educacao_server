@@ -93,11 +93,11 @@ public class ServicoRest {
 	@Path("/timeline")
 	@Produces("text/json;charset=UTF-8")
 	public String getTimeLine(
-			@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, 
+			@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, @QueryParam("arrIdFavoritos") String arrIdFavoritos,
 			@QueryParam("page") Long page, @QueryParam("start") Long start, @QueryParam("limit") Long limits){
 		init();
 		
-		System.out.println("latitude: "+latitude+" longitude: "+ longitude+" page: "+page);
+		System.out.println("latitude: "+latitude+" longitude: "+ longitude+" page: "+page+" arrIdFavoritos: "+ arrIdFavoritos );
 		
 		if( page != null && page >1) return "[]";
 		
@@ -110,7 +110,7 @@ public class ServicoRest {
 	    String url = scheme + "://" + serverName + ":" + serverPort + context;
 	    String path = "/imagens";
 	    
-		return this.educacaoFacade.getTimeLine(url+path, latitude, longitude, page, start, limits);
+		return this.educacaoFacade.getTimeLine(url+path, latitude, longitude, page, start, limits, arrIdFavoritos);
 	}
 	
 	@GET
@@ -180,6 +180,19 @@ public class ServicoRest {
 	}
 	
 	@GET
+	@Path("/escola/localidade")
+	@Produces("text/json;charset=UTF-8")
+	public String localidade(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, @QueryParam("filtro") String filtro ){
+		System.out.println("latitude: "+latitude+" longitude: "+ longitude);
+		
+		init();
+		
+		this.educacaoFacade = getEducacaoFacade();
+		
+		return this.educacaoFacade.getLocalidade( latitude, longitude, filtro);
+	}
+	
+	@GET
 	@Path("/escola/proxima")
 	@Produces("text/json;charset=UTF-8")
 	public String getEscolasProximas(
@@ -198,12 +211,12 @@ public class ServicoRest {
 	@GET
 	@Path("/getEscolas")
 	@Produces("text/json;charset=UTF-8")
-	public String getEscolas(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude){
+	public String getEscolas(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude, @QueryParam("localidade") String localidade){
 		init();
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		return "{}";//this.educacaoFacade.getEscolas(latitude, longitude);
+		return this.educacaoFacade.getEscolasByLocalidade(localidade);
 	}
 
 	public void init() {

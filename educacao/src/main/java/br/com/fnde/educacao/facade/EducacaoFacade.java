@@ -1,5 +1,6 @@
 package br.com.fnde.educacao.facade;
 
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -60,9 +61,12 @@ public class EducacaoFacade {
 		
 		JsonObject jsAvaliacao = new JsonObject();
 
-		jsAvaliacao.addProperty("aaa", 1 );
-		jsAvaliacao.addProperty("bbb", 3 );
-		jsAvaliacao.addProperty("ccc", 1 );
+		jsAvaliacao.addProperty("INFRAESTRUTURA", 0 );
+		jsAvaliacao.addProperty("LIVROS", 0 );
+		jsAvaliacao.addProperty("OBRAS", 0 );
+		jsAvaliacao.addProperty("EQUIPAMENTOS", 0 );
+		jsAvaliacao.addProperty("TECNOLOGIA", 0 );
+		
 		
 		jo.add("avaliacao", jsAvaliacao );
 		
@@ -89,7 +93,8 @@ public class EducacaoFacade {
 				jo.addProperty("idEscola", tl.getIdescola() );
 				
 				jo.addProperty("nome",  tl.getNoescola() );
-				jo.addProperty("distancia",  tl.getDistancia() );
+				jo.addProperty("distancia",  formataDistancia(tl.getDistancia()) );
+				jo.addProperty("endereco",  tl.getTxendereco() );
 				jo.addProperty("imagem",  tl.getTximagem() );
 				
 				System.out.println( jo );
@@ -99,6 +104,13 @@ public class EducacaoFacade {
 		return jarr.toString();
 	}
 	
+	private String formataDistancia(Long n) {
+		if( n == null) return "";
+		double d = (double)n/1000;
+
+		return String.format("%.3f", d)+" km";
+	}
+
 	@Transactional
 	public int curti(String idTimeLine, String idUsuario){
 		CurtirTimeLine curtir = new CurtirTimeLine();
@@ -165,12 +177,12 @@ public class EducacaoFacade {
 			jo.addProperty("tempo", calculaTempo( tl.getDtTimeLine() ));
 			
 			Escola escola = (Escola)escolaDAO.getById( tl.getIdEscola() );
-			
-			JsonObject joEscola = new JsonObject();
-			joEscola.addProperty("nome", escola.getNoEscola());
-			joEscola.addProperty("endereco",escola.getTxEndereco() );
-			jo.add("escola", joEscola);
-			
+			if( escola != null ){
+				JsonObject joEscola = new JsonObject();
+				joEscola.addProperty("nome", escola.getNoEscola());
+				joEscola.addProperty("endereco",escola.getTxEndereco() );
+				jo.add("escola", joEscola);
+			}
 			
 			if( tl.getTpTimeLine() == 3 ){
 				JsonParser parse = new JsonParser();
@@ -179,32 +191,66 @@ public class EducacaoFacade {
 				jo.add("avaliacao",  el );
 				
 				
-				
-				jo.addProperty("imagem",  escola.getTxImagem() ); //pathImagem+"/"+tl.getTxImagem() );
+				if( escola != null ){
+					jo.addProperty("imagem",  escola.getTxImagem() ); //pathImagem+"/"+tl.getTxImagem() );
+				}
 				
 			}else{
 				jo.addProperty("descricao",  tl.getDsTimeLine() );
 				jo.addProperty("resposta",  ""); //tl.getDsResposta() );
 				jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
 			}
-			
-			
-			
 			jo.addProperty("qtdCurti", tl.getQtCurti() );
-			
 			jarr.add( jo );
 		}
 	}
 	
 	@Transactional
-	public String getTimeLine(String pathImagem, String sLatitude, String sLongitude, Long page, Long start, Long limits){
+	public String getLocalidade(String sLatitude, String sLongitude, String filtro) {
+		JsonArray jarr = new JsonArray();
+		
+		if( filtro != null){
+			List<Escola> lst = this.escolaDAO.getByLocalidade( filtro );
+			for (Escola tl : lst) {
+				JsonObject jo = new JsonObject();
+				jo.addProperty("tipo",  "endereco" );
+				jo.addProperty("texto",  tl.getTxEndereco() );
+				System.out.println( jo );
+				jarr.add( jo );
+			}
+		}else{
+			List<EscolaDistancia> lst = this.escolaDAO.getByLatitudeLongitude(1l, 0l, 20l, Double.parseDouble(sLongitude), Double.parseDouble(sLatitude) );
+			for (EscolaDistancia tl : lst) {
+				JsonObject jo = new JsonObject();
+				
+				jo.addProperty("tipo",  "endereco" );
+				jo.addProperty("texto",  tl.getTxendereco() );
+				
+				System.out.println( jo );
+				jarr.add( jo );
+			}
+		}
+		
+		
+		return jarr.toString();
+	}
+	
+	@Transactional
+	public String getTimeLine(String pathImagem, String sLatitude, String sLongitude, Long page, Long start, Long limits, String arrIdFavoritos){
 		JsonArray jarr = new JsonArray();
 		
 		List<TimeLine> lst 	=null; 
 		if( sLatitude == null || sLongitude == null ){
-			lst = timeLineDAO.getTodos();
+			if ( arrIdFavoritos != null ){
+				JsonParser parse = new JsonParser();
+				JsonElement el =  parse.parse( arrIdFavoritos );
+				
+				lst = timeLineDAO.getFavoritos(el);
+			}else{
+				lst = timeLineDAO.getTodos();
+			}
 		}else{
-			//TODO A SER SIMPLEMENTADO QUANDO ESTIVER BUSCANDO LAT E LONGITUDE
+			//TODO A SER IMPLEMENTADO QUANDO ESTIVER BUSCANDO LAT E LONGITUDE
 			lst = timeLineDAO.getByLatitudeLongitude( Double.parseDouble(sLongitude), Double.parseDouble(sLatitude) );
 		}
 		montaJsonTimeLine(lst, jarr, pathImagem);
@@ -274,6 +320,32 @@ public class EducacaoFacade {
 		
 		return jo.toString();
 	}
+
+	@Transactional
+	public String getEscolasByLocalidade(String localidade) {
+		JsonArray jarr = new JsonArray();
+		
+		List<Escola> lst = escolaDAO.getByLocalidade( localidade );
+		
+		if( lst != null ){
+			//TODO fazer a logica para buscar dos favoritos
+			for (Escola tl : lst) {
+				JsonObject jo = new JsonObject();
+				jo.addProperty("idEscola", tl.getIdEscola() );
+				
+				jo.addProperty("nome",  tl.getNoEscola() );
+				//jo.addProperty("distancia",  formataDistancia(tl.getDistancia()) );
+				jo.addProperty("endereco",  tl.getTxEndereco() );
+				jo.addProperty("imagem",  tl.getTxImagem() );
+				
+				System.out.println( jo );
+				jarr.add( jo );
+			}
+		}
+		return jarr.toString();
+	}
+
+	
 
 	
 }
