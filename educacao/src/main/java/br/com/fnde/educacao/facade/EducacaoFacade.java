@@ -108,7 +108,7 @@ public class EducacaoFacade {
 		if( n == null) return "";
 		double d = (double)n/1000;
 
-		return String.format("%.3f", d)+" km";
+		return String.format("%.2f", d)+" km";
 	}
 
 	@Transactional
@@ -198,7 +198,9 @@ public class EducacaoFacade {
 			}else{
 				jo.addProperty("descricao",  tl.getDsTimeLine() );
 				jo.addProperty("resposta",  ""); //tl.getDsResposta() );
-				jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
+				if( tl.getTxImagem() != null ){
+					jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
+				}
 			}
 			jo.addProperty("qtdCurti", tl.getQtCurti() );
 			jarr.add( jo );
@@ -316,7 +318,10 @@ public class EducacaoFacade {
 		jo.addProperty("tempo", calculaTempo( tl.getDtTimeLine() ));
 		jo.addProperty("descricao",  tl.getDsTimeLine() );
 		jo.addProperty("resposta",  tl.getDsResposta() );
-		jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
+		
+		if( tl.getTxImagem() != null ){
+			jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
+		}
 		
 		return jo.toString();
 	}
