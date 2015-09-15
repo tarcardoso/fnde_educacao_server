@@ -74,12 +74,12 @@ public class ServicoRest {
 				"        \"descricao\": \"Usado para conteúdo exclusivamente comerciais ou qualquer ato de má fé com intuito de ludibriar alguém.\" "+
 				"    }, "+
 				"    { "+
-				"    	\"idEscola\": 2, "+
+				"    	\"id\": 2, "+
 				"        \"nome\": \"A foto coloca pessoas em risco\", "+
 				"        \"descricao\": \"Usado para denunciar imagens que retratam auto flagelação, perseguição online (cyberbullying) ou uso de drogas.\" "+
 				"    }, "+
 				"    { "+
-				"    	\"idEscola\": 3, "+
+				"    	\"id\": 3, "+
 				"        \"nome\": \"A foto não deveria estar aqui\", "+
 				"        \"descricao\": \"Usado em caso de nudez, pornografia, violação de direitos autorais ou discursos de ódio.\" "+
 				"    } "+
@@ -160,7 +160,7 @@ public class ServicoRest {
 		
 		this.educacaoFacade = getEducacaoFacade();
 		
-		int curti = this.educacaoFacade.curti( idTimeLine, idUsuario );
+		long curti = this.educacaoFacade.curti( idTimeLine, idUsuario );
 		
 		return "{\"qtd\": "+ curti+" }";
 	}
@@ -190,6 +190,17 @@ public class ServicoRest {
 		this.educacaoFacade = getEducacaoFacade();
 		
 		return this.educacaoFacade.getLocalidade( latitude, longitude, filtro);
+	}
+	
+	@GET
+	@Path("/notificacao")
+	@Produces("text/json;charset=UTF-8")
+	public String getNotificacao(@QueryParam("latitude") String latitude, @QueryParam("longitude") String longitude){
+		
+		System.out.println("latitude: "+latitude+" longitude: "+ longitude);
+		init();
+		this.educacaoFacade = getEducacaoFacade();
+		return this.educacaoFacade.getNotificacao( latitude, longitude);
 	}
 	
 	@GET

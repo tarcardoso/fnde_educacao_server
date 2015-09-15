@@ -14,7 +14,8 @@ public class Publicacao implements Serializable {
 	
 	private String categoria;
 	private String tipo;
-	private String idUsuario;
+	private String nomeUsuario;
+	private String chaveUsuario;
 	private String idEscola;
 	private String descricao;
 	private String avaliacao;
@@ -39,13 +40,20 @@ public class Publicacao implements Serializable {
 	public void setIdEscola(String idEscola) {
 		this.idEscola = idEscola;
 	}
-	public String getIdUsuario() {
-		return idUsuario;
-	}
-	public void setIdUsuario(String idUsuario) {
-		this.idUsuario = idUsuario;
-	}
 	
+	
+	public String getNomeUsuario() {
+		return nomeUsuario;
+	}
+	public void setNomeUsuario(String nomeUsuario) {
+		this.nomeUsuario = nomeUsuario;
+	}
+	public String getChaveUsuario() {
+		return chaveUsuario;
+	}
+	public void setChaveUsuario(String chaveUsuario) {
+		this.chaveUsuario = chaveUsuario;
+	}
 	public String getTipo() {
 		return tipo;
 	}

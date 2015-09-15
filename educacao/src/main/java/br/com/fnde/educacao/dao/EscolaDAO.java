@@ -21,6 +21,35 @@ public class EscolaDAO extends HibernateDAOImpl<Escola> {
 		return Escola.class;
 	}
 	
+	public List<EscolaDistancia> getByLatitudeLongitude( double latitude, double longitude) {
+		SQLQuery query = getSession().createSQLQuery(
+				" select * from ( SELECT idescola, noescola, tximagem, txendereco, "
+						+"( (3959 * 1.609 * 1000) * acos( cos( radians( :latitude) ) * cos(  "
+						+" radians(numlatitude ) ) * cos( "
+						+" radians( numlongitude ) - radians( :longitude) ) + sin( radians( :latitude) ) * sin(  " 
+						+" radians( numlatitude ) ) ) ) AS "
+						+" distancia "
+						+" FROM escola ) tb "
+						+" where distancia < 1000 order by distancia"
+						);
+		
+			query.addScalar("idescola", new LongType())
+            .addScalar("noescola", new StringType())
+            .addScalar("tximagem", new StringType())
+            .addScalar("distancia", new LongType())
+            .addScalar("txendereco", new StringType());
+            
+			query.setParameter("latitude", latitude); //-15.844539);
+			query.setParameter("longitude", longitude); //-47.880803);
+
+			query.setResultTransformer( Transformers.aliasToBean(EscolaDistancia.class) );
+			
+			List<EscolaDistancia> list = query.list();
+			
+			return list;
+
+	}
+	
 	public List<EscolaDistancia> getByLatitudeLongitude(Long page, Long start, Long limits, double latitude, double longitude) {
 		
 		SQLQuery query = getSession().createSQLQuery(
@@ -80,6 +109,7 @@ public class EscolaDAO extends HibernateDAOImpl<Escola> {
 	}
 
 	public Escola getById(Long id) {
+		if( id == null ) return null;
 		Query query = getSession().createQuery("from Escola escola where escola.idEscola = ? ");
 		query.setLong(0, id);
 		return (Escola) query.uniqueResult();				   

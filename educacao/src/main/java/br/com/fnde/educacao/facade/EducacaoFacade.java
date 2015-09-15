@@ -1,6 +1,5 @@
 package br.com.fnde.educacao.facade;
 
-import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import br.com.fnde.educacao.dao.CurtirTimeLineDAO;
 import br.com.fnde.educacao.dao.EscolaDAO;
@@ -50,33 +50,53 @@ public class EducacaoFacade {
 		Escola escola = escolaDAO.getById( idEscola );
 		
 		JsonArray jarr = new JsonArray();
-		
-		JsonObject jo = new JsonObject();
-		jo.addProperty("idEscola", idEscola );
-		
-		jo.addProperty("nome",  escola.getNoEscola() );
-		jo.addProperty("endereco",  escola.getTxEndereco() );
-		jo.addProperty("imagem",  escola.getTxImagem() );
-		jo.addProperty("tipo", "Consolidado");
-		
-		JsonObject jsAvaliacao = new JsonObject();
-
-		jsAvaliacao.addProperty("INFRAESTRUTURA", 0 );
-		jsAvaliacao.addProperty("LIVROS", 0 );
-		jsAvaliacao.addProperty("OBRAS", 0 );
-		jsAvaliacao.addProperty("EQUIPAMENTOS", 0 );
-		jsAvaliacao.addProperty("TECNOLOGIA", 0 );
-		
-		
-		jo.add("avaliacao", jsAvaliacao );
-		
-		jarr.add( jo );
-		
-		List<TimeLine> lst = timeLineDAO.getByIdEscola(idEscola);
-		montaJsonTimeLine(lst, jarr, pathImagem);
-		
+		if( escola != null ){
+			JsonObject jo = new JsonObject();
+			jo.addProperty("idTimeLine", idEscola );
+			
+			jo.addProperty("nome",  escola.getNoEscola() );
+			jo.addProperty("endereco",  escola.getTxEndereco() );
+			jo.addProperty("imagem",  escola.getTxImagem() );
+			jo.addProperty("tipo", "Consolidado");
+			
+			JsonObject jsAvaliacao = new JsonObject();
+	
+			jsAvaliacao.addProperty("INFRAESTRUTURA", 0 );
+			jsAvaliacao.addProperty("LIVROS", 0 );
+			jsAvaliacao.addProperty("OBRAS", 0 );
+			jsAvaliacao.addProperty("EQUIPAMENTOS", 0 );
+			jsAvaliacao.addProperty("TECNOLOGIA", 0 );
+			
+			
+			jo.add("avaliacao", jsAvaliacao );
+			
+			jarr.add( jo );
+			
+			List<TimeLine> lst = timeLineDAO.getByIdEscola(idEscola);
+			montaJsonTimeLine(lst, jarr, pathImagem);
+		}
 		return jarr.toString();
 	}	
+	
+	@Transactional
+	public String getNotificacao(String latitude, String longitude){
+		JsonArray jarr = new JsonArray();
+		
+		List<EscolaDistancia> lst = null;
+		if( latitude != null && longitude != null ){
+			lst = escolaDAO.getByLatitudeLongitude( Double.parseDouble(latitude), Double.parseDouble(longitude) );
+		}
+		if( lst != null ){
+			//TODO fazer a logica para buscar dos favoritos
+			for (EscolaDistancia tl : lst) {
+				JsonObject jo = new JsonObject();
+				jo.addProperty("idEscola", tl.getIdescola() );
+				jo.addProperty("descricao", "Proximo a escola "+ tl.getNoescola() + " endereço "+tl.getTxendereco() );
+				jarr.add( jo );
+			}
+		}
+		return jarr.toString();
+	}
 	
 	@Transactional
 	public String getEscolas(Long page, Long start, Long limits, String latitude, String longitude){
@@ -112,15 +132,21 @@ public class EducacaoFacade {
 	}
 
 	@Transactional
-	public int curti(String idTimeLine, String idUsuario){
+	public Long curti(String idTimeLine, String idUsuario){
 		CurtirTimeLine curtir = new CurtirTimeLine();
 		
-		curtir.setIdTimeLine( Long.parseLong( idTimeLine) );
-		curtir.setIdUsuario( Long.parseLong( idUsuario) );
-		
-		curtirTimeLineDAO.insert(curtir);
-		
-		return timeLineDAO.updateCurti(idTimeLine);
+		Long qtdCurti = curtirTimeLineDAO.getJaCurtido(idTimeLine, idUsuario);
+		if( qtdCurti == 0 ){
+			curtir.setIdTimeLine( Long.parseLong( idTimeLine) );
+			curtir.setIdUsuario(  idUsuario );
+			
+			curtirTimeLineDAO.insert(curtir);
+			
+			
+			return timeLineDAO.updateCurti(idTimeLine);
+		}else{
+			return qtdCurti;
+		}
 	}
 	
 	@Transactional
@@ -128,7 +154,7 @@ public class EducacaoFacade {
 		ImproprioTimeLine itl = new ImproprioTimeLine();
 		itl.setIdImproprio( Long.parseLong(improprio.getIdImproprio()) );
 		itl.setIdTimeLine( Long.parseLong(improprio.getIdTimeLine()) );
-		itl.setIdUsuario( Long.parseLong(improprio.getIdUsuario() ) );
+		itl.setIdUsuario( improprio.getIdUsuario() );
 		
 		improprioTimeLineDAO.insert(itl);
 		
@@ -139,23 +165,24 @@ public class EducacaoFacade {
 	public int salvaTimeLine(Publicacao publicacao) {
 		TimeLine tl = new TimeLine();
 		tl.setDsTimeLine( publicacao.getDescricao() );
-		tl.setQtCurti( 0 );
+		tl.setQtCurti( 0l );
 		tl.setDtTimeLine( new java.sql.Date(System.currentTimeMillis() ));
 		if( publicacao.getIdEscola() != null ){
 			tl.setIdEscola( Long.parseLong(publicacao.getIdEscola()) );
 		}
 		
 		//TODO definir informacoes do facebook
-		if( publicacao.getIdUsuario()  != null){
-			tl.setNoFaceBook( publicacao.getIdUsuario() );
+		if( publicacao.getNomeUsuario()  != null){
+			tl.setNoFaceBook( publicacao.getNomeUsuario() );
 		}
-		tl.setFotoFaceBook( "resources/img/imagem.jpg" );
+		tl.setChaveFaceBook( publicacao.getChaveUsuario() );
 		if( publicacao.getTipo() != null ){
 			tl.setTpTimeLine( Integer.parseInt(publicacao.getTipo()) );
 		}
 		if( publicacao.getDescricao() == null ){
 			tl.setDsTimeLine( publicacao.getAvaliacao() );
 		}
+		tl.setTxCategoria(publicacao.getCategoria() );
 		//tl.setIdTimeLine(0);
 		
 		timeLineDAO.insert(tl);
@@ -165,17 +192,15 @@ public class EducacaoFacade {
 	private void montaJsonTimeLine( List<TimeLine> lst, JsonArray jarr, String  pathImagem){
 		for (TimeLine tl : lst) {
 			JsonObject jo = new JsonObject();
-			
 			jo.addProperty("idTimeLine", tl.getIdTimeLine());
 			jo.addProperty("idEscola", tl.getIdEscola() );
 			JsonObject joFB = new JsonObject();
 			joFB.addProperty("nome", tl.getNoFaceBook());
-			joFB.addProperty("foto", tl.getFotoFaceBook());
+			joFB.addProperty("chave", tl.getChaveFaceBook());
 			jo.add("facebook", joFB);
 			jo.addProperty("tipo", getTipoPost( tl.getTpTimeLine() ));
 			jo.addProperty("tipo_sl", getTipoPostLg( tl.getTpTimeLine() ));
 			jo.addProperty("tempo", calculaTempo( tl.getDtTimeLine() ));
-			
 			Escola escola = (Escola)escolaDAO.getById( tl.getIdEscola() );
 			if( escola != null ){
 				JsonObject joEscola = new JsonObject();
@@ -183,13 +208,11 @@ public class EducacaoFacade {
 				joEscola.addProperty("endereco",escola.getTxEndereco() );
 				jo.add("escola", joEscola);
 			}
-			
 			if( tl.getTpTimeLine() == 3 ){
 				JsonParser parse = new JsonParser();
 				JsonElement el =  parse.parse( tl.getDsTimeLine() );
 				
 				jo.add("avaliacao",  el );
-				
 				
 				if( escola != null ){
 					jo.addProperty("imagem",  escola.getTxImagem() ); //pathImagem+"/"+tl.getTxImagem() );
@@ -197,14 +220,25 @@ public class EducacaoFacade {
 				
 			}else{
 				jo.addProperty("descricao",  tl.getDsTimeLine() );
-				jo.addProperty("resposta",  ""); //tl.getDsResposta() );
+				jo.addProperty("categoria",  tl.getTxCategoria() );
+				//jo.addProperty("resposta",  ""); //tl.getDsResposta() );
 				if( tl.getTxImagem() != null ){
 					jo.addProperty("imagem",  pathImagem+"/"+tl.getTxImagem() );
 				}
 			}
 			jo.addProperty("qtdCurti", tl.getQtCurti() );
+			jo.add("listaImproprio",  jaMarcadoImproprio( tl.getIdTimeLine() ) );
 			jarr.add( jo );
 		}
+	}
+	private JsonArray jaMarcadoImproprio(Integer idTimeLine ){
+		JsonArray jarr = new JsonArray();
+		
+		List<Object> lst = improprioTimeLineDAO.getImproprioByTimeLine(idTimeLine);
+		for (Object object : lst) {
+			jarr.add( new JsonPrimitive(object.toString()) );
+		}
+		return jarr;
 	}
 	
 	@Transactional
@@ -266,16 +300,16 @@ public class EducacaoFacade {
 	}
 
 	private String getTipoPostLg(Integer tpTimeLine) {
-		String ret = "D";
+		String ret = "d";
 		switch (tpTimeLine) {
 			case 1:
-				ret = "D";
+				ret = "d";
 				break;
 			case 2:
-				ret = "P";
+				ret = "p";
 				break;
 			case 3:
-				ret = "A";
+				ret = "a";
 				break;
 			default:
 				break;
@@ -309,14 +343,25 @@ public class EducacaoFacade {
 		JsonObject jo = new JsonObject();
 		
 		jo.addProperty("idTimeLine", tl.getIdTimeLine());
-		jo.addProperty("idEscola", tl.getIdEscola() );
+		//jo.addProperty("idEscola", tl.getIdEscola() );
 		JsonObject joFB = new JsonObject();
 		joFB.addProperty("nome", tl.getNoFaceBook());
-		joFB.addProperty("foto", tl.getFotoFaceBook());
+		joFB.addProperty("chave", tl.getChaveFaceBook());
 		jo.add("facebook", joFB);
+		
+		Escola escola = (Escola)escolaDAO.getById( tl.getIdEscola() );
+		if( escola != null ){
+			JsonObject joEscola = new JsonObject();
+			joEscola.addProperty("nome", escola.getNoEscola());
+			joEscola.addProperty("endereco",escola.getTxEndereco() );
+			jo.add("escola", joEscola);
+		}
+		
 		jo.addProperty("tipo", getTipoPost( tl.getTpTimeLine() ));
+		jo.addProperty("tipo_sl", getTipoPostLg( tl.getTpTimeLine() ));
 		jo.addProperty("tempo", calculaTempo( tl.getDtTimeLine() ));
 		jo.addProperty("descricao",  tl.getDsTimeLine() );
+		jo.addProperty("categoria",  tl.getTxCategoria() );
 		jo.addProperty("resposta",  tl.getDsResposta() );
 		
 		if( tl.getTxImagem() != null ){

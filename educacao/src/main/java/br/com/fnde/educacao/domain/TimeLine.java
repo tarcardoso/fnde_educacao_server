@@ -27,8 +27,8 @@ public class TimeLine implements Domain {
 	@Column(name="noFaceBook", nullable=false, length=100)
 	private String noFaceBook;
 	
-	@Column(name="fotoFaceBook", nullable=false, length=5000)
-	private String fotoFaceBook;
+	@Column(name="chaveFaceBook", nullable=false, length=100)
+	private String chaveFaceBook;
 	
 	@NotNull	
 	@Column(name="tpTimeLine", nullable=false) 
@@ -46,15 +46,18 @@ public class TimeLine implements Domain {
 	private String dsResposta;
 	
 	@Column(name="qtCurti", nullable=false) 
-	private Integer qtCurti;
+	private Long qtCurti;
 	
-	public Integer getQtCurti() {
+	public Long getQtCurti() {
 		return qtCurti;
 	}
 
-	public void setQtCurti(Integer qtCurti) {
+	public void setQtCurti(Long qtCurti) {
 		this.qtCurti = qtCurti;
 	}
+	
+	@Column(name="txcategoria", length=100)
+	private String txCategoria;
 
 	@Column(name="txImagem", length=1000)
 	private String txImagem;
@@ -91,12 +94,12 @@ public class TimeLine implements Domain {
 		this.noFaceBook = noFaceBook;
 	}
 
-	public String getFotoFaceBook() {
-		return fotoFaceBook;
+	public String getChaveFaceBook() {
+		return chaveFaceBook;
 	}
 
-	public void setFotoFaceBook(String fotoFaceBook) {
-		this.fotoFaceBook = fotoFaceBook;
+	public void setChaveFaceBook(String chaveFaceBook) {
+		this.chaveFaceBook = chaveFaceBook;
 	}
 
 	public Integer getTpTimeLine() {
@@ -129,6 +132,14 @@ public class TimeLine implements Domain {
 
 	public void setDsResposta(String dsResposta) {
 		this.dsResposta = dsResposta;
+	}
+
+	public String getTxCategoria() {
+		return txCategoria;
+	}
+
+	public void setTxCategoria(String txCategoria) {
+		this.txCategoria = txCategoria;
 	}
 	
 }

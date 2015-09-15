@@ -39,17 +39,6 @@ public class TimeLineDAO extends HibernateDAOImpl<TimeLine> {
 		query.addEntity(TimeLine.class);
 		
 		return query.list();
-		
-//		String listaId = "";
-//		for (Object object : results) {
-//			Object[] arr = (Object[])object;
-//			listaId += arr[0]+",";
-//			System.out.println( object);
-//		}
-//		listaId = listaId.substring(0, listaId.length()-1 );
-//		Query queryEscola = getSession().createQuery("from TimeLine tl where tl.idEscola in ("+listaId+") ");
-//		
-//		return queryEscola.list();
 	}
 	
 	public List<TimeLine> getFavoritos( JsonElement json ){
@@ -68,7 +57,7 @@ public class TimeLineDAO extends HibernateDAOImpl<TimeLine> {
 		if( idEscola.isEmpty() ){
 			return new ArrayList<TimeLine>();
 		}
-		Query query = getSession().createQuery("from TimeLine tl where tl.idEscola in ("+ idEscola +") ");
+		Query query = getSession().createQuery("from TimeLine tl where tl.idEscola in ("+ idEscola +") order by tl.idTimeLine desc");
 
 		List<TimeLine> list = (List<TimeLine>) query.list();
 		
@@ -82,7 +71,7 @@ public class TimeLineDAO extends HibernateDAOImpl<TimeLine> {
 	
 	public List<TimeLine> getByIdEscola(Long idEscola) {
 		
-		Query query = getSession().createQuery("from TimeLine tl where tl.idEscola = ? ");
+		Query query = getSession().createQuery("from TimeLine tl where tl.idEscola = ? order by tl.idTimeLine desc");
 		query.setLong(0, idEscola);
 		List<TimeLine> list = (List<TimeLine>) query.list();
 		
@@ -96,11 +85,11 @@ public class TimeLineDAO extends HibernateDAOImpl<TimeLine> {
 		return (TimeLine) query.uniqueResult();				   
 	}
 
-	public int updateCurti(String idTimeLine) {
+	public long updateCurti(String idTimeLine) {
 		// TODO Auto-generated method stub
 		TimeLine timeLine = getById( Long.parseLong( idTimeLine ) );
 		
-		int qtd = timeLine.getQtCurti();
+		long qtd = timeLine.getQtCurti();
 		qtd++;
 		timeLine.setQtCurti( qtd );
 		

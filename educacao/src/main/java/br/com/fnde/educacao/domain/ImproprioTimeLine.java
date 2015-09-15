@@ -28,7 +28,7 @@ public class ImproprioTimeLine implements Domain {
 	private Long idImproprio;
 	
 	@Column(name="idUsuario", nullable=false) 
-	private Long idUsuario;
+	private String idUsuario;
 
 	public Long getIdImproprioTimeLine() {
 		return idImproprioTimeLine;
@@ -54,11 +54,11 @@ public class ImproprioTimeLine implements Domain {
 		this.idImproprio = idImproprio;
 	}
 
-	public Long getIdUsuario() {
+	public String getIdUsuario() {
 		return idUsuario;
 	}
 
-	public void setIdUsuario(Long idUsuario) {
+	public void setIdUsuario(String idUsuario) {
 		this.idUsuario = idUsuario;
 	}
 	

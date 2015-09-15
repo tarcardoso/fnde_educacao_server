@@ -21,8 +21,8 @@ public class CurtirTimeLine implements Domain {
 	@Column(name="idTimeLine", nullable=false) 
 	private Long idTimeLine;
 	
-	@Column(name="idUsuario", nullable=false) 
-	private Long idUsuario;
+	@Column(name="idUsuario", nullable=false, length=100) 
+	private String idUsuario;
 
 	public Long getIdImproprioTimeLine() {
 		return idImproprioTimeLine;
@@ -40,11 +40,11 @@ public class CurtirTimeLine implements Domain {
 		this.idTimeLine = idTimeLine;
 	}
 
-	public Long getIdUsuario() {
+	public String getIdUsuario() {
 		return idUsuario;
 	}
 
-	public void setIdUsuario(Long idUsuario) {
+	public void setIdUsuario(String idUsuario) {
 		this.idUsuario = idUsuario;
 	}
 	

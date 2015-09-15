@@ -28,7 +28,12 @@ public void atualizaTimeLine(Context context, String filePath, String idPost, St
 	           	System.out.println(">>>>SUCESSO<<<<");
 	        }
 	        
+	        System.out.println("-->"+ "UPDATE timeline set tximagem= '"+novo+"' WHERE idtimeline = "+idPost );
+	        
 	        int qtd = stmt.executeUpdate("UPDATE timeline set tximagem= '"+novo+"' WHERE idtimeline = "+idPost );
+	        
+	        
+	        
 	        System.out.println("qtd: "+qtd );
        }
      }
